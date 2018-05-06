@@ -28,7 +28,7 @@ using namespace std;
 const string ops[] = {
 	";",
 	",",
-	
+
 	// data types
 	"int",
 	"float",
@@ -54,7 +54,7 @@ const string ops[] = {
 	// member access
 	".",
 	"->",
-	
+
 	// arithmetic
 	"+",
 	"-",
@@ -71,7 +71,7 @@ const string ops[] = {
 	"<=",
 	">=",
 	"==",
-	
+
 	// keywords
 	"break",
 	"continue",
@@ -153,13 +153,11 @@ int main()
 	_popualate_operators();
 	_popualate_redundancy_pairs();
 
-	for ( vector<redundancy_pair>::iterator it = redundancy_pairs.begin(); it != redundancy_pairs.end(); it++)
-		cout << (*it).f << " " << (*it).s << " " << (*it).multiplicity << endl;
 
 	// we now create a regex for identifier
 	regex identifier_def( "[A-Za-z][A-Za-z0-9]*" );
 	smatch sm;
-	
+
 	ifstream file( "code.txt" );
 	string input;
 
@@ -183,22 +181,44 @@ int main()
 					pos += (*op).length();
 				}
 			}
-			
+
 			// now lets check for identifiers
-			// while( regex_search(  ) )
+			string::const_iterator pos( input.cbegin() );
+			while( regex_search ( pos, input.cend(), sm , identifier_def ) ) 
+			{
+				// check if identifier is an operator 
+				if ( operators.find( sm[0] ) != operators.end() )
+				{
+					pos += sm.position() + sm.length();
+					continue;
+				}
+
+				string operand = sm[0];
+				// if not add to map
+				if ( operand_counts.find( operand ) != operand_counts.end() )
+					operand_counts[operand]++;
+				else 
+					operand_counts.insert( make_pair( operand, 1 ) );
+
+				pos += sm.position() + sm.length();
+			}
 		}
 
 		_adjust_redundancy();
 	}
-	
-	int N1=0;
+
+
+	int N1=0,n1=0;
 	for ( map<string, int>::iterator it=operator_counts.begin(); it != operator_counts.end(); it++ )
 	{
-		cout << (*it).first << " " << (*it).second << endl;
+		if ( (*it).second ) n1++;
 		N1 += (*it).second;
 	}
 
-	cout << N1 << endl;
+	for ( map<string, int>::iterator it=operand_counts.begin(); it != operand_counts.end(); it++ )
+	{
+		cout << (*it).first << " " << (*it).second << endl;
+	}
 }
 
 
