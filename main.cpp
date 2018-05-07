@@ -156,6 +156,12 @@ int main()
 
 	// we now create a regex for identifier
 	regex identifier_def( "[A-Za-z][A-Za-z0-9]*" );
+
+	// numbers defined at word boundary , important condition
+	// for matching numbers is that they have to be separated by
+	// word boundaries
+	regex number_def( "\\b([0-9]+)\\b" );
+
 	smatch sm;
 
 	ifstream file( "code.txt" );
@@ -167,12 +173,12 @@ int main()
 		{
 			// now check for operators in the line
 			for ( set<string>::iterator op = operators.begin(); op != operators.end(); op++)
-			{	
+			{
 				int pos = 0;
 				// for every operator scan the entire line for multiple matches
 				while (( pos = input.find( *op, pos )) != string::npos)
 				{
-					// found an operator 
+					// found an operator
 					if ( operator_counts.find( *op ) == operator_counts.end() )
 						operator_counts.insert({ *op, 1 });
 					else
@@ -184,7 +190,7 @@ int main()
 
 			// now lets check for identifiers
 			string::const_iterator pos( input.cbegin() );
-			while( regex_search ( pos, input.cend(), sm , identifier_def ) ) 
+			while( regex_search (pos, input.cend(), sm , identifier_def))
 			{
 				// check if identifier is an operator 
 				if ( operators.find( sm[0] ) != operators.end() )
@@ -202,23 +208,48 @@ int main()
 
 				pos += sm.position() + sm.length();
 			}
+				
+			// search for numbers 
+			pos = input.cbegin();
+			while ( regex_search( pos, input.cend(), sm, number_def  ) )
+			{
+				// check if identifier is an operator 
+				if ( operators.find( sm[0] ) != operators.end() )
+				{
+					pos += sm.position() + sm.length();
+					continue;
+				}
+
+				string operand = sm[0];
+				// cout << "Operand : " << operand << endl;
+				// if not add to map
+				if ( operand_counts.find( operand ) != operand_counts.end() )
+					operand_counts[operand]++;
+				else 
+					operand_counts.insert( make_pair( operand, 1 ) );
+
+				pos += sm.position() + sm.length();
+			}
 		}
 
 		_adjust_redundancy();
 	}
 
 
-	int N1=0,n1=0;
+	int N1=0,n1=0,n2=0,N2=0;
 	for ( map<string, int>::iterator it=operator_counts.begin(); it != operator_counts.end(); it++ )
 	{
 		if ( (*it).second ) n1++;
 		N1 += (*it).second;
 	}
-
+	
 	for ( map<string, int>::iterator it=operand_counts.begin(); it != operand_counts.end(); it++ )
 	{
-		cout << (*it).first << " " << (*it).second << endl;
+		if( (*it).second ) n2++;
+		N2 += (*it).second;
 	}
+
+	printf("n1:%d, n2:%d, N1:%d, N2:%d\n", n1, n2 , N1, N2);
 }
 
 
