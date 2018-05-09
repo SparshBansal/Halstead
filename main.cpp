@@ -250,6 +250,34 @@ int main()
 	}
 
 	printf("n1:%d, n2:%d, N1:%d, N2:%d\n", n1, n2 , N1, N2);
+
+	// compute the halstead metrics now 
+	
+	// program size defined as the sum of 
+	// all operands and operators 
+	int size = N1 + N2;
+
+	// Vocabulary size -- Size of the vocabulary 
+	// defined as sum of distinct operands and operators
+	int vocab_size = n1+n2;
+	
+	// Volume - Program Volume , defined as follows:
+	// Volume = size x log ( vocab_size )
+	double volume = size*log2(vocab_size);
+	
+	// Difficulty = ( n1/2 ) x ( N2/n2 ) and level = 1/difficulty
+	double difficulty = (double(n1)/2) * (double(N2)/double(n2));
+	double level = (1/difficulty);
+	
+	// effort = volume x difficulty
+	double effort = volume*difficulty;
+
+	cout << "Size : " << size << endl;
+	cout << "Vocabulary Size : " << vocab_size << endl;
+	cout << "volume : " << volume << endl;
+	cout << "difficulty : " << difficulty << endl;
+	cout << "level : " << level << endl;
+	cout << "effort : " << effort << endl;
 }
 
 
